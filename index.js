@@ -43,7 +43,7 @@ bot.on("ready",function(){
     console.log("Ready!");
 });    
 
-bot.login(process.env.TOKEN);
+bot.login(process.env.BOT_TOKEN);
 
 function respondCommand(com, message){   
     if (message.content.toLowerCase() === com)
