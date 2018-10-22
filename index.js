@@ -6,7 +6,7 @@ var bot = new Discord.Client();
 //Alapértelmezett beállitások
 
 const TOKEN = process.env.BOT_TOKEN;
-var admins;
+const admins;
 
 
 
