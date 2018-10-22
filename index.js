@@ -5,6 +5,7 @@ var bot = new Discord.Client();
 
 //Alapértelmezett beállitások
 
+const TOKEN = process.env.BOT_TOKEN;
 
 var admins;
 
@@ -41,7 +42,7 @@ bot.on("ready",function(){
     console.log("Ready!");
 });    
 
-bot.login(process.env.BOT_TOKEN);
+bot.login(TOKEN);
 
 function respondCommand(com, message){   
     if (message.content.toLowerCase() === com)
