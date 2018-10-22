@@ -7,7 +7,7 @@ var bot = new Discord.Client();
 
 
 const admins;
-//admins = process.env.ADMIN_ID1;
+admins = process.env.ADMIN_ID1;
 
 const prefix = "!";
 const command = "glyph";
