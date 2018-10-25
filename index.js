@@ -157,7 +157,7 @@ function checkTheFormatumOfGlyphCode(code){
 
 function addToFileThoseUsersWhoAlreadyGotCodes(UsersWhoGotCodeArray){
     var fs = require("fs");
-    var file = fs.readFileSync(fileGotCode, {"encoding": "utf-8"});
+    var file = fs.readFileSync("./gotcode.txt", {"encoding": "utf-8"});
     
     for(var i = 0; i < UsersWhoGotCodeArray.length-1; i=i+2){
         if(UsersWhoGotCodeArray[i].lenght == 19 && file.indexOf(UsersWhoGotCodeArray[i]) == -1){
@@ -168,6 +168,6 @@ function addToFileThoseUsersWhoAlreadyGotCodes(UsersWhoGotCodeArray){
              }
         }  
     }
-    fs.writeFileSync(fileGotCode,file,{"encoding": "utf-8"});
+    fs.writeFileSync("./gotcode.txt",file,{"encoding": "utf-8"});
     return true;
 }
