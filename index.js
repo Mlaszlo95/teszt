@@ -159,7 +159,7 @@ function addToFileThoseUsersWhoAlreadyGotCodes(UsersWhoGotCodeArray){
     var file = fs.readFileSync(fileGotCode, {"encoding": "utf-8"});
     
     for(var i = 0; i < codeArray.length-1; i=i+2){
-        if(UsersWhoGotCodeArray[i].lenght == 19){
+        if(UsersWhoGotCodeArray[i].lenght == 19 && file.indexOf(UsersWhoGotCodeArray[i]) == -1){
             if(checkTheFormatumOfGlyphCode(UsersWhoGotCodeArray[i+1])){
                 file = file + UsersWhoGotCodeArray[i] + " " + UsersWhoGotCodeArray[i+1] + "\r\n";
              }else{
