@@ -8,10 +8,10 @@ var bot = new Discord.Client();
 const TOKEN = process.env.BOT_TOKEN;
 //var admins;
 
-
-
 const prefix = "!";
 const command = "glyph";
+    //file name and root
+    const fileGotCode = "gotcode.txt";
 
 var text = "Here is your nekro's glyph code:\nTessék itt van a nekros glyph kódod:\n";                                          //A bot küldi a glyph kódal ezt a üzenetet. The bot send this message with glyph code.
 var untext = "I sorry but you've already got a glyph code!\nBocsi, de te már kaptál glyph kódot!";                              //A bot ezt az üzenetet küldi ha már van glyph kódja. The bot send this message in that case if user got an code.
@@ -19,6 +19,7 @@ var notMyAdmin = "Sorry but you aren't my one of the administrators!\nSajnálom,
 var newGlyphMes = "Kérem adja be a glyph kódokat veszővel, szóközzel vagy enterel elválasztva!";
 var helpCode = "!code --- A kódoknak muszáj ebben a formátumba lennie xxxx-xxxx-xxxx-xxxx . Szóközel, veszővel,enterel lehet tagolni őket";
 var helpDrop = "!drop --- ezzel lehet lekérni kik kaptak már kódot, egy fájlt fog át dobni.";
+var helpAddGotCode = "!add --- ezzel a paranccsal lehet hozzá adni azokat akik kaptak kódot. A formátum: id xxxx-xxxx-xxxx-xxxx .A kód nem szükséges"; 
 
     //exceptions, kivételek
     var exceptionOne = "```diff\n- The bot doesn't have more glyph codes. But don't worry I'm sending a message for admins!\n``````diff\n- A bot-nak nincs több kódja, de ne aggódj küldök egy üzenetet az adminoknak!``` <@224975936263684097><@272762360140267520>";
@@ -60,7 +61,6 @@ function respondCommand(com, message){
         }else{
             message.author.send(untext);
         }
-        
 }
 
 function readGlyphCode(){
@@ -99,7 +99,7 @@ function userGotGlyph(author,code){
 
 function pmMessageCode(message){
     if(message.content.toLowerCase() === prefix + "help"){
-        message.author.send(helpCode+"\n"+helpDrop);
+        message.author.send(helpCode+"\n"+helpDrop+"\n"+helpAddGotCode);
         return ;
     }
     if(message.content.toLowerCase().indexOf(prefix + "code") == 0){
@@ -114,6 +114,12 @@ function pmMessageCode(message){
                 "./gotcode.txt"
             ]
         })
+    }
+    if(message.content.toLowerCase() === prefix + "add"){
+        var code = message.content.replace(prefix + "add ", "");
+        code = code.replace(" ","\n").replace(",","\n");
+        var codeArray = code.split("\n",19);
+        if(addToFileThoseUsersWhoAlreadyGotCodes(codeArray)) message.author.send("Siker");
     }
 }
 /*
@@ -130,13 +136,37 @@ function botGotMoreCodes(codeArray){
     var file = fs.readFileSync("./glyph.txt", {"encoding": "utf-8"});
 
     for(var i = 0; i < codeArray.length; i++){
-        var rightIndex = codeArray[i].indexOf('-') + 1;
-        var rightIndex = rightIndex + codeArray[i].indexOf('-',2)+ 1;
-        var rightIndex = rightIndex + codeArray[i].indexOf('-',3)+ 1;
-        if(rightIndex == 15 && codeArray[i].length == 19){
+        if(checkTheFormatumOfGlyphCode(codeArray[i])){
             file = file + codeArray[i] + "\r\n";
         }
     }
     fs.writeFileSync("./glyph.txt",file,{"encoding": "utf-8"});
+    return true;
+}
+
+function checkTheFormatumOfGlyphCode(code){
+    var rightIndex = code.indexOf('-') + 1;
+    var rightIndex = rightIndex + code.indexOf('-',2)+ 1;
+    var rightIndex = rightIndex + code.indexOf('-',3)+ 1;
+    if(rightIndex == 15 && codeArray[i].length == 19){
+        return true;
+    }
+    return false;
+}
+
+function addToFileThoseUsersWhoAlreadyGotCodes(UsersWhoGotCodeArray){
+    var fs = require("fs");
+    var file = fs.readFileSync(fileGotCode, {"encoding": "utf-8"});
+    
+    for(var i = 0; i < codeArray.length-1; i=i+2){
+        if(UsersWhoGotCodeArray[i].lenght == 19){
+            if(checkTheFormatumOfGlyphCode(UsersWhoGotCodeArray[i+1])){
+                file = file + UsersWhoGotCodeArray[i] + " " + UsersWhoGotCodeArray[i+1] + "\r\n";
+             }else{
+                file = file + UsersWhoGotCodeArray[i] + "\r\n";
+             }
+        }  
+    }
+    fs.writeFileSync(fileGotCode,file,{"encoding": "utf-8"});
     return true;
 }
