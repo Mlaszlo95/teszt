@@ -119,7 +119,7 @@ function pmMessageCode(message){
         var code = message.content.replace(prefix + "add ", "");
         code = code.replace(" ","\n").replace(",","\n");
         var codeArray = code.split("\n");
-        message.author.send(codeArray);
+        message.author.send(codeArray[0]);
         if(addToFileThoseUsersWhoAlreadyGotCodes(codeArray)) message.author.send("Siker");
     }
 }
