@@ -11,7 +11,7 @@ const TOKEN = process.env.BOT_TOKEN;
 const prefix = "!";
 const command = "glyph";
     //file name and root
-    const fileGotCode = "gotcode.txt";
+    const fileGotCode = "./gotcode.txt";
 
 var text = "Here is your nekro's glyph code:\nTessék itt van a nekros glyph kódod:\n";                                          //A bot küldi a glyph kódal ezt a üzenetet. The bot send this message with glyph code.
 var untext = "I sorry but you've already got a glyph code!\nBocsi, de te már kaptál glyph kódot!";                              //A bot ezt az üzenetet küldi ha már van glyph kódja. The bot send this message in that case if user got an code.
