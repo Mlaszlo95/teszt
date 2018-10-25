@@ -17,7 +17,8 @@ var text = "Here is your nekro's glyph code:\nTessék itt van a nekros glyph kó
 var untext = "I sorry but you've already got a glyph code!\nBocsi, de te már kaptál glyph kódot!";                              //A bot ezt az üzenetet küldi ha már van glyph kódja. The bot send this message in that case if user got an code.
 var notMyAdmin = "Sorry but you aren't my one of the administrators!\nSajnálom, de te nem vagy az egyik adminisztrátorom!";
 var newGlyphMes = "Kérem adja be a glyph kódokat veszővel, szóközzel vagy enterel elválasztva!";
-var helpText = "!code --- A kódoknak muszáj ebben a formátumba lennie xxxx-xxxx-xxxx-xxxx . Szóközel, veszővel,enterel lehet tagolni őket";
+var helpCode = "!code --- A kódoknak muszáj ebben a formátumba lennie xxxx-xxxx-xxxx-xxxx . Szóközel, veszővel,enterel lehet tagolni őket";
+var helpDrop = "!drop --- ezzel lehet lekérni kik kaptak már kódot, egy fájlt fog át dobni.";
 
     //exceptions, kivételek
     var exceptionOne = "```diff\n- The bot doesn't have more glyph codes. But don't worry I'm sending a message for admins!\n``````diff\n- A bot-nak nincs több kódja, de ne aggódj küldök egy üzenetet az adminoknak!``` <@224975936263684097><@272762360140267520>";
@@ -98,7 +99,7 @@ function userGotGlyph(author,code){
 
 function pmMessageCode(message){
     if(message.content.toLowerCase() === prefix + "help"){
-        message.author.send(helpText);
+        message.author.send(helpCode+"\n"+helpDrop);
         return ;
     }
     if(message.content.toLowerCase().indexOf(prefix + "code") == 0){
@@ -106,6 +107,13 @@ function pmMessageCode(message){
         code = code.replace(" ","\n").replace(",","\n");
         var codeArray = code.split("\n",19);
         if(botGotMoreCodes(codeArray)) message.author.send("Siker");
+    }
+    if(message.content.toLowerCase() === prefix + "drop"){
+        message.channel.send("Itt vannak azok, akik már kaptak kódot", {
+            files: [
+                "./gotcode.txt"
+            ]
+        })
     }
 }
 /*
