@@ -14,7 +14,7 @@ const prefix = "!";
 const command = "glyph";
 
 var text = "Here is your nekro's glyph code:\nTessék itt van a nekros glyph kódod:\n";                                          //A bot küldi a glyph kódal ezt a üzenetet. The bot send this message with glyph code.
-var untext = "I sorry but you've already got a glyph code!\nBocsi, de te már kaptál glyph kódod!";                              //A bot ezt az üzenetet küldi ha már van glyph kódja. The bot send this message in that case if user got an code.
+var untext = "I sorry but you've already got a glyph code!\nBocsi, de te már kaptál glyph kódot!";                              //A bot ezt az üzenetet küldi ha már van glyph kódja. The bot send this message in that case if user got an code.
 var notMyAdmin = "Sorry but you aren't my one of the administrators!\nSajnálom, de te nem vagy az egyik adminisztrátorom!";
 var newGlyphMes = "Kérem adja be a glyph kódokat veszővel, szóközzel vagy enterel elválasztva!";
 var helpText = "!code --- A kódoknak muszáj ebben a formátumba lennie xxxx-xxxx-xxxx-xxxx . Szóközel, veszővel,enterel lehet tagolni őket";
@@ -70,7 +70,7 @@ function readGlyphCode(){
         throw exceptionOne;
     }
 
-    code = file.slice(0, 19).replace('\r','');
+    code = file.slice(0, 20).replace('\r','');
     file = file.replace(code,'').split("\n").slice(1).join("\n");
     
     fs.writeFileSync("./glyph.txt",file,{"encoding": "utf-8"});
