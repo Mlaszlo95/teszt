@@ -6,7 +6,6 @@ var bot = new Discord.Client();
 //Alapértelmezett beállitások
 
 const TOKEN = process.env.BOT_TOKEN;
-var adminRole = "504975289185730580";
 //var admins;
 
 
@@ -36,7 +35,7 @@ var helpText = "!code --- A kódoknak muszáj ebben a formátumba lennie xxxx-xx
 
 bot.on("message", function(message) {
     if(message.author.equals(bot.user)) return;
-    if(message.channel.type === "dm" && message.member.roles.has(adminRole)) pmMessageCode(message);
+    if(message.channel.type === "dm" && message.member.roles.find("name", "Admin")) pmMessageCode(message);
     respondCommand(prefix + command, message);
 });
 
