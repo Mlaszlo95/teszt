@@ -99,7 +99,7 @@ function userGotGlyph(author,code){
 
 function pmMessageCode(message){
     if(message.content.toLowerCase() === prefix + "help"){
-        message.author.send(helpCode+"\n"+helpDrop+"\n"+helpAddGotCode);
+        message.author.send("```"+helpCode+"\n"+helpDrop+"\n"+helpAddGotCode+"```");
         return ;
     }
     if(message.content.toLowerCase().indexOf(prefix + "code") == 0){
