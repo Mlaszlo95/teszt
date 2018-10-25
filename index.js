@@ -118,8 +118,9 @@ function pmMessageCode(message){
     if(message.content.toLowerCase() === prefix + "add"){
         var code = message.content.replace(prefix + "add ", "");
         code = code.replace(" ","\n").replace(",","\n");
-        var codeArray = code.split("\n");
+        var codeArray = code.split("\r\n");
         message.author.send(codeArray[0]);
+        message.author.send(codeArray[1]);
         if(addToFileThoseUsersWhoAlreadyGotCodes(codeArray)) message.author.send("Siker");
     }
 }
