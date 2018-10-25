@@ -35,7 +35,7 @@ var helpText = "!code --- A kódoknak muszáj ebben a formátumba lennie xxxx-xx
 
 bot.on("message", function(message) {
     if(message.author.equals(bot.user)) return;
-    if(message.channel.type === "dm" /*&& message.member.roles.find("name", "Admin")*/) pmMessageCode(message);
+    if(message.channel.type === "dm" && message.author.id == '224975936263684097') pmMessageCode(message);
     respondCommand(prefix + command, message);
 });
 
