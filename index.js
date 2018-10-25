@@ -6,7 +6,7 @@ var bot = new Discord.Client();
 //Alapértelmezett beállitások
 
 const TOKEN = process.env.BOT_TOKEN;
-var admins;
+//var admins;
 
 
 
@@ -35,7 +35,7 @@ var helpText = "!code --- A kódoknak muszáj ebben a formátumba lennie xxxx-xx
 
 bot.on("message", function(message) {
     if(message.author.equals(bot.user)) return;
-    if(message.channel.type === "dm" && checkTheAdminStatus(message)) pmMessageCode(message);
+    if(message.channel.type === "dm" && message.member.roles.find('name', 'Admin')) pmMessageCode(message);
     respondCommand(prefix + command, message);
 });
 
@@ -108,7 +108,7 @@ function pmMessageCode(message){
         if(botGotMoreCodes(codeArray)) message.author.send("Siker");
     }
 }
-
+/*
 function checkTheAdminStatus(message){
     for(var i = 0; i<admins.length;i++){
         if(admins[i] == message.author.id) return true;
@@ -116,7 +116,7 @@ function checkTheAdminStatus(message){
 
     return false;
 }
-
+*/
 function botGotMoreCodes(codeArray){
     var fs = require("fs");
     var file = fs.readFileSync("./glyph.txt", {"encoding": "utf-8"});
