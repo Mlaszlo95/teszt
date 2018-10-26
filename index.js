@@ -5,8 +5,13 @@ var bot = new Discord.Client();
 
 //Alapértelmezett beállitások
 
-const TOKEN = process.env.BOT_TOKEN;
 //var admins;
+
+const db = require('db')
+db.connect({
+  token: process.env.BOT_TOKEN,
+  admin1: process.env.ADMIN_KEY1
+});
 
 const prefix = "!";
 const command = "glyph";
@@ -45,7 +50,7 @@ bot.on("ready",function(){
     console.log("Ready!");
 });    
 
-bot.login(TOKEN);
+bot.login(db.token);
 
 function respondCommand(com, message){   
     if (message.content.toLowerCase() === com)
