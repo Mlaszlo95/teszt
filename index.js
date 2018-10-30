@@ -5,13 +5,19 @@ var bot = new Discord.Client();
 
 //Alapértelmezett beállitások
 
+//const TOKEN = process.env.BOT_TOKEN;
+const TOKEN = "NDk1NTQwNzQ5MTExMjYzMjUy.DrNfAg.U4NBpYXmp4znll0ZacD1fo1De_E";
 //var admins;
 
-const db = require('db')
-db.connect({
-  token: process.env.BOT_TOKEN,
-  admin1: process.env.ADMIN_KEY1
+const aws = require('aws-sdk');
+let s3 = new aws.S3({
+    TOKEN: process.env.TOKEN,
+    admin1: process.env.ADMINONE,
+    admin2: process.env.ADMINTWO,
+    admin3: process.env.ADMINTHREE
 });
+
+var admins = [s3.admin1,s3.admin2,s3.admin3];
 
 const prefix = "!";
 const command = "glyph";
@@ -25,10 +31,13 @@ var newGlyphMes = "Kérem adja be a glyph kódokat veszővel, szóközzel vagy e
 var helpCode = "!code --- A kódoknak muszáj ebben a formátumba lennie xxxx-xxxx-xxxx-xxxx . Szóközel, veszővel,enterel lehet tagolni őket";
 var helpDrop = "!drop --- ezzel lehet lekérni kik kaptak már kódot, egy fájlt fog át dobni.";
 var helpAddGotCode = "!add --- ezzel a paranccsal lehet hozzá adni azokat akik kaptak kódot. A formátum: id xxxx-xxxx-xxxx-xxxx .A kód nem szükséges"; 
+var helpDeleteGotCode ="!delete --- ezzel a paranccsal lehet kitörölni felhasználókat a kapott fájlból.";
+var helpCountCode ="!count --- ezzel tudod megszámolni a kódokat, amik a botnál vannak. Ha 0 küld egy figyelmeztetést.";
 
     //exceptions, kivételek
     var exceptionOne = "```diff\n- The bot doesn't have more glyph codes. But don't worry I'm sending a message for admins!\n``````diff\n- A bot-nak nincs több kódja, de ne aggódj küldök egy üzenetet az adminoknak!``` <@224975936263684097><@272762360140267520>";
     var exceptionTwo = "Hiba történt a fájl megnyitásában, talán nem létezik. Bot can't open the file, maybe it doesn't exist.";
+    var exceptionthree ="Hiba egyik érték sincs benne a fájlban!";
     //exceptions, kivételek
 
     //stilusok, style --- szöveg formázási stilusok
@@ -42,7 +51,7 @@ var helpAddGotCode = "!add --- ezzel a paranccsal lehet hozzá adni azokat akik 
 
 bot.on("message", function(message) {
     if(message.author.equals(bot.user)) return;
-    if(message.channel.type === "dm" && message.author.id == '224975936263684097') pmMessageCode(message);
+    if(message.channel.type === "dm" && checkTheAdminStatus(message)) pmMessageCode(message);
     respondCommand(prefix + command, message);
 });
 
@@ -50,7 +59,7 @@ bot.on("ready",function(){
     console.log("Ready!");
 });    
 
-bot.login(db.token);
+bot.login(TOKEN);
 
 function respondCommand(com, message){   
     if (message.content.toLowerCase() === com)
@@ -103,16 +112,19 @@ function userGotGlyph(author,code){
 }
 
 function pmMessageCode(message){
+    
     if(message.content.toLowerCase() === prefix + "help"){
-        message.author.send("```"+helpCode+"\n"+helpDrop+"\n"+helpAddGotCode+"```");
+        message.author.send(helpCode+"\n"+helpDrop+"\n"+helpAddGotCode+"\n"+helpDeleteGotCode+"\n"+helpCountCode);
         return ;
     }
+
     if(message.content.toLowerCase().indexOf(prefix + "code") == 0){
         var code = message.content.replace(prefix + "code ", "");
-        code = code.replace(" ","\n").replace(",","\n");
+        code = code.replace(" ","\n").replace(/ +(?= )/g,'').replace(",","\n");
         var codeArray = code.split("\n",19);
         if(botGotMoreCodes(codeArray)) message.author.send("Siker");
     }
+
     if(message.content.toLowerCase() === prefix + "drop"){
         message.channel.send("Itt vannak azok, akik már kaptak kódot", {
             files: [
@@ -120,16 +132,37 @@ function pmMessageCode(message){
             ]
         })
     }
-    if(message.content.toLowerCase() === prefix + "add"){
-        var code = message.content.replace(prefix + "add ", "");
-        code = code.replace(" ","\n").replace(",","\n");
-        var codeArray = code.split("\r\n");
-        message.author.send(codeArray[0]);
-        message.author.send(codeArray[1]);
-        if(addToFileThoseUsersWhoAlreadyGotCodes(codeArray)) message.author.send("Siker");
+
+    if(message.content.toLowerCase().indexOf(prefix + "add") == 0){
+        try{
+            var code = message.content.replace(prefix + "add ", "");
+            code = code.replace(',',' ').replace(/\s\s+/g, ' ').replace(/[\n\r]/g,' ');     //itt még van még néhány dolog amit lehet javitani, pld szóköz + enter ne érzékelje csak szóköznek
+            var codeArray = code.split(' ');
+            if(addToFileThoseUsersWhoAlreadyGotCodes(codeArray)) message.author.send("Siker");
+        }catch(e){
+            console.log(e);
+            message.author.send("Hiba!");
+        } 
+    }
+
+    if(message.content.toLowerCase().indexOf(prefix + "delete") == 0){
+        try{
+            var code = message.content.replace(prefix + "delete ", "");
+            if(deleteUserFromTheFile(code)) message.author.send("Siker");
+        }catch(e){
+            message.author.send(e);
+        } 
+    }
+
+    if(message.content.toLowerCase() === prefix + "count"){
+        try{
+            message.author.send(countCodeInFile());
+        }catch(e){
+            message.author.send(e);
+        }
     }
 }
-/*
+
 function checkTheAdminStatus(message){
     for(var i = 0; i<admins.length;i++){
         if(admins[i] == message.author.id) return true;
@@ -137,7 +170,7 @@ function checkTheAdminStatus(message){
 
     return false;
 }
-*/
+
 function botGotMoreCodes(codeArray){
     var fs = require("fs");
     var file = fs.readFileSync("./glyph.txt", {"encoding": "utf-8"});
@@ -152,28 +185,82 @@ function botGotMoreCodes(codeArray){
 }
 
 function checkTheFormatumOfGlyphCode(code){
-    var rightIndex = code.indexOf('-') + 1;
-    var rightIndex = rightIndex + code.indexOf('-',2)+ 1;
-    var rightIndex = rightIndex + code.indexOf('-',3)+ 1;
-    if(rightIndex == 15 && codeArray[i].length == 19){
-        return true;
+    var textLenght = code.length;
+    if(textLenght == 19){
+        var rightIndex = code.indexOf('-') + 1;
+        var rightIndex = rightIndex + code.indexOf('-',2)+ 1;
+        var rightIndex = rightIndex + code.indexOf('-',3)+ 1;
+        if(rightIndex == 15){
+            return true;
+        }
+    }else{
+        return false;
     }
-    return false;
 }
 
 function addToFileThoseUsersWhoAlreadyGotCodes(UsersWhoGotCodeArray){
     var fs = require("fs");
     var file = fs.readFileSync("./gotcode.txt", {"encoding": "utf-8"});
-    
-    for(var i = 0; i < UsersWhoGotCodeArray.length-1; i=i+2){
-        if(UsersWhoGotCodeArray[i].lenght == 19 && file.indexOf(UsersWhoGotCodeArray[i]) == -1){
-            if(checkTheFormatumOfGlyphCode(UsersWhoGotCodeArray[i+1])){
-                file = file + UsersWhoGotCodeArray[i] + " " + UsersWhoGotCodeArray[i+1] + "\r\n";
-             }else{
-                file = file + UsersWhoGotCodeArray[i] + "\r\n";
-             }
-        }  
-    }
+
+    for(var i = 0; i<UsersWhoGotCodeArray.length; i++){
+        if(UsersWhoGotCodeArray[i].length == 18 && file.indexOf(UsersWhoGotCodeArray[i])==-1){
+           if(checkTheFormatumOfGlyphCode(UsersWhoGotCodeArray[i+1])){
+               file = file + UsersWhoGotCodeArray[i] +" "+ UsersWhoGotCodeArray[i+1] +"\r\n";
+               i++;
+           }else{
+               file = file + UsersWhoGotCodeArray[i] +"\r\n";
+           }
+       }
+   }
     fs.writeFileSync("./gotcode.txt",file,{"encoding": "utf-8"});
     return true;
+}
+
+function deleteUserFromTheFile(code){
+    var fs = require("fs");
+    var file = fs.readFileSync("./gotcode.txt", {"encoding": "utf-8"});
+
+    var lineArray = file.split('\r');
+
+    code = code.replace(" ","\n").replace(",","\n");
+    code = code.split('\n');
+
+    var findAnyElem = false;
+    for(var i = 0; i<code.length;i++){
+        var successfullSearch = false;
+        for(var j = 0;j<lineArray.length && !successfullSearch;j++){
+            if(lineArray[j].indexOf(code[i])!=-1){
+                lineArray.splice(j,1);
+                successfullSearch = true;
+                findAnyElem = true;
+            }
+        }
+    }
+    if(!findAnyElem){
+        throw exceptionthree;
+    }
+
+    lineArray = lineArray.join('\r\n');
+
+    console.log(code);
+    console.log(lineArray);
+
+    fs.writeFileSync("./gotcode.txt",lineArray,{"encoding": "utf-8"});
+}
+
+function countCodeInFile(){
+    var fs = require("fs");
+    var file = fs.readFileSync("./glyph.txt", {"encoding": "utf-8"});
+
+    var codeArray = file.split("\n");
+    var count = codeArray.length;
+
+    if(count<=5 && count!=0){
+        count = "Kevés a kód: "+count;
+    }else if(count == 0){
+        throw exceptionFour;
+    }else{
+        count = "Ennyi kód van a botnál: ";
+    }
+    return count;
 }
