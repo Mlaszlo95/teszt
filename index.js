@@ -5,19 +5,9 @@ var bot = new Discord.Client();
 
 //Alapértelmezett beállitások
 
-const TOKEN = "NDk1NTQwNzQ5MTExMjYzMjUy.DrNfAg.U4NBpYXmp4znll0ZacD1fo1De_E";
-//var admins;
+const TOKEN = process.env.BOT_TOKEN;
 
-const aws = require('aws-sdk');
-let s3 = new aws.S3({
-    TOKEN: process.env.TOKEN,
-    admin1: process.env.ADMINONE,
-    admin2: process.env.ADMINTWO,
-    admin3: process.env.ADMINTHREE
-});
-
-var admins = [s3.admin1,s3.admin2,s3.admin3];
-
+var admins = [];
 const prefix = "!";
 const command = "glyph";
     //file name and root
@@ -55,6 +45,9 @@ bot.on("message", function(message) {
 });
 
 bot.on("ready",function(){
+    admins[0] = process.env.ADMINONE;
+    admins[1] = process.env.ADMINTWO;
+    admins[2] = process.env.ADMINTHREE;
     console.log("Ready!");
 });    
 
