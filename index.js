@@ -58,7 +58,7 @@ bot.on("ready",function(){
     console.log("Ready!");
 });    
 
-bot.login(S3.TOKEN);
+bot.login(s3.TOKEN);
 
 function respondCommand(com, message){   
     if (message.content.toLowerCase() === com)
