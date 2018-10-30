@@ -6,7 +6,6 @@ var bot = new Discord.Client();
 //Alapértelmezett beállitások
 
 //const TOKEN = process.env.BOT_TOKEN;
-const TOKEN = "NDk1NTQwNzQ5MTExMjYzMjUy.DrNfAg.U4NBpYXmp4znll0ZacD1fo1De_E";
 //var admins;
 
 const aws = require('aws-sdk');
@@ -59,7 +58,7 @@ bot.on("ready",function(){
     console.log("Ready!");
 });    
 
-bot.login(TOKEN);
+bot.login(S3.TOKEN);
 
 function respondCommand(com, message){   
     if (message.content.toLowerCase() === com)
