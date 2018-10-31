@@ -128,9 +128,7 @@ function pmMessageCode(message){
     if(message.content.toLowerCase().indexOf(prefix + "add") == 0){
         try{
             var code = message.content.replace(prefix + "add ", "");
-            code = code.replace(',',' ').replace(/\s\s+/g, ' ').replace(/[\n\r]/g,' ');     //itt még van még néhány dolog amit lehet javitani, pld szóköz + enter ne érzékelje csak szóköznek
-            var codeArray = code.split(' ');
-            if(addToFileThoseUsersWhoAlreadyGotCodes(codeArray)) message.author.send("Siker");
+            if(addToFileThoseUsersWhoAlreadyGotCodes(code)) message.author.send("Siker");
         }catch(e){
             console.log(e);
             message.author.send("Hiba!");
@@ -190,20 +188,29 @@ function checkTheFormatumOfGlyphCode(code){
     }
 }
 
-function addToFileThoseUsersWhoAlreadyGotCodes(UsersWhoGotCodeArray){
+function addToFileThoseUsersWhoAlreadyGotCodes(code){
     var fs = require("fs");
     var file = fs.readFileSync("./gotcode.txt", {"encoding": "utf-8"});
 
-    for(var i = 0; i<UsersWhoGotCodeArray.length; i++){
-        if(UsersWhoGotCodeArray[i].length == 18 && file.indexOf(UsersWhoGotCodeArray[i])==-1){
-           if(checkTheFormatumOfGlyphCode(UsersWhoGotCodeArray[i+1])){
-               file = file + UsersWhoGotCodeArray[i] +" "+ UsersWhoGotCodeArray[i+1] +"\r\n";
-               i++;
-           }else{
-               file = file + UsersWhoGotCodeArray[i] +"\r\n";
+    code = code.replace(',',' ').replace(/\s\s+/g, ' ').replace(/[\n\r]/g,' ');     //itt még van még néhány dolog amit lehet javitani, pld szóköz + enter ne érzékelje csak szóköznek
+    if(UsersWhoGotCodeArray>23){
+        var UsersWhoGotCodeArray = code.split(' ');
+        for(var i = 0; i<UsersWhoGotCodeArray.length; i++){
+            if(UsersWhoGotCodeArray[i].length == 18 && file.indexOf(UsersWhoGotCodeArray[i])==-1){
+               if(checkTheFormatumOfGlyphCode(UsersWhoGotCodeArray[i+1])){
+                   file = file + UsersWhoGotCodeArray[i] +" "+ UsersWhoGotCodeArray[i+1] +"\r\n";
+                   i++;
+               }else{
+                   file = file + UsersWhoGotCodeArray[i] +"\r\n";
+               }
            }
        }
-   }
+    }else{
+        if(UsersWhoGotCodeArray.length == 18 && file.indexOf(UsersWhoGotCodeArray)==-1){
+            file = file + UsersWhoGotCodeArray[i] +"\r\n";
+        }
+    }
+
     fs.writeFileSync("./gotcode.txt",file,{"encoding": "utf-8"});
     return true;
 }
@@ -231,11 +238,7 @@ function deleteUserFromTheFile(code){
     if(!findAnyElem){
         throw exceptionthree;
     }
-
     lineArray = lineArray.join('\r\n');
-
-    console.log(code);
-    console.log(lineArray);
 
     fs.writeFileSync("./gotcode.txt",lineArray,{"encoding": "utf-8"});
 }
@@ -252,7 +255,7 @@ function countCodeInFile(){
     }else if(count == 0){
         throw exceptionFour;
     }else{
-        count = "Ennyi kód van a botnál: ";
+        count = "Ennyi kód van a botnál: "+count;
     }
     return count;
 }
