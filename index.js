@@ -207,7 +207,7 @@ function addToFileThoseUsersWhoAlreadyGotCodes(code){
        }
     }else{
         if(UsersWhoGotCodeArray.length == 18 && file.indexOf(UsersWhoGotCodeArray)==-1){
-            file = file + UsersWhoGotCodeArray[i] +"\r\n";
+            file = file + UsersWhoGotCodeArray +"\r\n";
         }
     }
 
