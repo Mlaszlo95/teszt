@@ -3,31 +3,66 @@ const Discord = require("discord.js");
 var bot = new Discord.Client();
 
 
-//Alapértelmezett beállitások
-
 const TOKEN = process.env.BOT_TOKEN;
+var glyphTurnOn = true;
 
 var admins = [];
+var roles = [];
+
+//text arguments
+var text;
+var untext;
+var notMyAdmin;
+var newGlyphMes;
+var yourLevelIsToLowText;
+
+//exception text arguments
+var exceptionOne;
+var exceptionTwo;
+var exceptionthree;
+
+//Alapértelmezett beállitások
+
 const prefix = "!";
 const command = "glyph";
-    //file name and root
-    const fileGotCode = "./gotcode.txt";
 
-var text = "Here is your nekro's glyph code:\nTessék itt van a nekros glyph kódod:\n";                                          //A bot küldi a glyph kódal ezt a üzenetet. The bot send this message with glyph code.
-var untext = "I sorry but you've already got a glyph code!\nBocsi, de te már kaptál glyph kódot!";                              //A bot ezt az üzenetet küldi ha már van glyph kódja. The bot send this message in that case if user got an code.
-var notMyAdmin = "Sorry but you aren't my one of the administrators!\nSajnálom, de te nem vagy az egyik adminisztrátorom!";
-var newGlyphMes = "Kérem adja be a glyph kódokat veszővel, szóközzel vagy enterel elválasztva!";
+//file name and root
+const fileGotCode = "./gotcode.txt";
+
+//felhasználóknak üzzenet. Magyarul:
+
+    text = "Tessék itt van a nekros glyph kódod:\n";                                //A bot küldi a glyph kódal ezt a üzenetet.
+    untext = "Bocsi, de te már kaptál glyph kódot!\n";                              //A bot ezt az üzenetet küldi ha már van glyph kódja. The bot send this message in that case if user got an code.
+    newGlyphMes = "Kérem adja be a glyph kódokat veszővel, szóközzel vagy enterel elválasztva!";
+    yourLevelIsToLowText = "Sajnos nem vagy még tag, ezért még nem tudok neked Glyph Kódott adni. Ahhoz hogy tag legyél el kell érned a 3-mas szintet ezen a szerveren. Ezt megtudod valósítani ha hagysz üzeneteket, majd utána kapsz xp-t. Szabadon próbálkozhatsz ebben a szobában <#412712487893467136>\n \n";
+
+    //kivételek
+    exceptionOne = "```diff\n- A bot-nak nincs több kódja, de ne aggódj küldök egy üzenetet az adminoknak!``` \n<@224975936263684097> <@272762360140267520>";
+    exceptionTwo = "Hiba történt a fájl megnyitásában, talán nem létezik.";
+    exceptionthree ="Hiba egyik érték sincs benne a fájlban!";
+    //kivételek
+
+//Message for users. English:
+    text = text + "Here is your nekro's glyph code:\n";                             //The bot send this message with glyph code.
+    untext = untext + "I sorry but you've already got a glyph code!\n";
+    yourLevelIsToLowText = yourLevelIsToLowText + "Unfortunately you haven't earned the tag rank yet and I can't give you a Glyph code currently. If you want tag, you should level up to 3 in this server. You'll enable to do this if you leave some messages and you'll get xp for them. You can freely try in this room <#412712487893467136>";
+
+    //exceptions
+    exceptionOne = exceptionOne + "```diff\n- The bot doesn't have more glyph codes. But don't worry I'm sending a message for admins!\n```";
+    exceptionTwo = exceptionTwo + "Bot can't open the file, maybe it doesn't exist.";
+    //exceptions
+
+//üzzenet adminoknak
+
 var helpCode = "!code --- A kódoknak muszáj ebben a formátumba lennie xxxx-xxxx-xxxx-xxxx . Szóközel, veszővel,enterel lehet tagolni őket";
 var helpDrop = "!drop --- ezzel lehet lekérni kik kaptak már kódot, egy fájlt fog át dobni.";
 var helpAddGotCode = "!add --- ezzel a paranccsal lehet hozzá adni azokat akik kaptak kódot. A formátum: id xxxx-xxxx-xxxx-xxxx .A kód nem szükséges"; 
-var helpDeleteGotCode ="!delete --- ezzel a paranccsal lehet kitörölni felhasználókat a kapott fájlból.";
-var helpCountCode ="!count --- ezzel tudod megszámolni a kódokat, amik a botnál vannak. Ha 0 küld egy figyelmeztetést.";
+var helpDeleteGotCode = "!delete --- ezzel a paranccsal lehet kitörölni felhasználókat a kapott fájlból.";
+var helpCountCode = "!count --- ezzel tudod megszámolni a kódokat, amik a botnál vannak. Ha 0 küld egy figyelmeztetést.";
+var helpSwitch = "!switch --- ezzel a paranccsal ki/be lehet kapcsolni a botot, ha ki van kapcsolva akkor csak az adminok kaphatnak kódot, ha be van akkor bárki kaphat aki tag"
 
-    //exceptions, kivételek
-    var exceptionOne = "```diff\n- The bot doesn't have more glyph codes. But don't worry I'm sending a message for admins!\n``````diff\n- A bot-nak nincs több kódja, de ne aggódj küldök egy üzenetet az adminoknak!``` <@224975936263684097><@272762360140267520>";
-    var exceptionTwo = "Hiba történt a fájl megnyitásában, talán nem létezik. Bot can't open the file, maybe it doesn't exist.";
-    var exceptionthree ="Hiba egyik érték sincs benne a fájlban!";
-    //exceptions, kivételek
+var botIsNotWorkingText = "A bot jelenleg, csak az adminoknak oszthat a kódot";
+var botIsWorkingText = "A bot jelenleg működőképes és osztja a kódot többieknek is";
 
     //stilusok, style --- szöveg formázási stilusok
     var style1 = "```fix\n";                                             //ezzel lehet átállitani a glyph szinét, this value changes the color of the glyph code.
@@ -48,6 +83,9 @@ bot.on("ready",function(){
     admins[0] = process.env.ADMINONE;
     admins[1] = process.env.ADMINTWO;
     admins[2] = process.env.ADMINTHREE;
+    roles[0] = process.env.ROLESTAFF;
+    roles[1] = process.env.ROLEADMIN;
+
     console.log("Ready!");
 });    
 
@@ -56,13 +94,17 @@ bot.login(TOKEN);
 function respondCommand(com, message){   
     if (message.content.toLowerCase() === com)
         if(chectUserNotGotGlyph(message.author.id)){
-            try{
-                var code = readGlyphCode();
-                userGotGlyph(message.author.id,code);
-                code = style1 + code + styleEnd;
-                message.author.send(text + code);
-            }catch(e){
-                message.channel.sendMessage(e);
+            if(message.member.roles.has(roles[0]) || (message.member.roles.has(roles[1]) && glyphTurnOn)){
+                try{
+                    var code = readGlyphCode();
+                    userGotGlyph(message.author.id,code);
+                    code = style1 + code + styleEnd;
+                    message.author.send(text + code);
+                }catch(e){
+                    message.channel.sendMessage(e);
+                }
+            }else{
+                message.author.send(yourLevelIsToLowText);
             }
         }else{
             message.author.send(untext);
@@ -92,7 +134,6 @@ function chectUserNotGotGlyph(author){
     if(file.indexOf(author) == -1){
         return true;
     }
-    //console.log(file.indexOf(author));
 
     return false;
 }
@@ -103,16 +144,17 @@ function userGotGlyph(author,code){
     fs.writeFileSync("./gotcode.txt",author + " " + code,{"encoding": "utf-8"});
 }
 
+
 function pmMessageCode(message){
     
     if(message.content.toLowerCase() === prefix + "help"){
-        message.author.send(helpCode+"\n"+helpDrop+"\n"+helpAddGotCode+"\n"+helpDeleteGotCode+"\n"+helpCountCode);
+        message.author.send(helpCode+"\n"+helpDrop+"\n"+helpAddGotCode+"\n"+helpDeleteGotCode+"\n"+helpCountCode+"\n"+helpSwitch);
         return ;
     }
 
     if(message.content.toLowerCase().indexOf(prefix + "code") == 0){
         var code = message.content.replace(prefix + "code ", "");
-        code = code.replace(" ","\n").replace(/ +(?= )/g,'').replace(",","\n");
+        code = code.replace(" ","\n").replace(/ +(?= )/g,'').replace(",","\n").replace(' , ','\n').replace(' ,','\n').replace(', ','\n');
         var codeArray = code.split("\n",19);
         if(botGotMoreCodes(codeArray)) message.author.send("Siker");
     }
@@ -130,8 +172,7 @@ function pmMessageCode(message){
             var code = message.content.replace(prefix + "add ", "");
             if(addToFileThoseUsersWhoAlreadyGotCodes(code)) message.author.send("Siker");
         }catch(e){
-            console.log(e);
-            message.author.send("Hiba!");
+            message.author.send("Hiba! Input: "+ e.message +" : "+e.lineNumber);
         } 
     }
 
@@ -140,7 +181,7 @@ function pmMessageCode(message){
             var code = message.content.replace(prefix + "delete ", "");
             if(deleteUserFromTheFile(code)) message.author.send("Siker");
         }catch(e){
-            message.author.send(e);
+            message.author.send(e.message);
         } 
     }
 
@@ -148,8 +189,12 @@ function pmMessageCode(message){
         try{
             message.author.send(countCodeInFile());
         }catch(e){
-            message.author.send(e);
+            message.author.send(e.message);
         }
+    }
+
+    if(message.content.toLowerCase() === prefix + "switch"){
+        switchOfTheBotOperation(message);
     }
 }
 
@@ -192,25 +237,25 @@ function addToFileThoseUsersWhoAlreadyGotCodes(code){
     var fs = require("fs");
     var file = fs.readFileSync("./gotcode.txt", {"encoding": "utf-8"});
 
-    code = code.replace(',',' ').replace(/\s\s+/g, ' ').replace(/[\n\r]/g,' ');     //itt még van még néhány dolog amit lehet javitani, pld szóköz + enter ne érzékelje csak szóköznek
-    if(UsersWhoGotCodeArray>23){
+    code = code.replace(',',' ').replace(/\s\s+/g, ' ').replace(/[\n\r]/g,' ').repace(', ',' ').repace(' , ',' ').repace(' ,',' ').replace(' \n',' ');     //itt még van még néhány dolog amit lehet javitani, pld szóköz + enter ne érzékelje csak szóköznek
+    if(code.length>23){
         var UsersWhoGotCodeArray = code.split(' ');
-        for(var i = 0; i<UsersWhoGotCodeArray.length; i++){
+        var long = UsersWhoGotCodeArray.length;
+        for(var i = 0; i<long; i++){
             if(UsersWhoGotCodeArray[i].length == 18 && file.indexOf(UsersWhoGotCodeArray[i])==-1){
-               if(checkTheFormatumOfGlyphCode(UsersWhoGotCodeArray[i+1])){
-                   file = file + UsersWhoGotCodeArray[i] +" "+ UsersWhoGotCodeArray[i+1] +"\r\n";
+               file = file + UsersWhoGotCodeArray[i];
+               if(i<=long-2 &&(checkTheFormatumOfGlyphCode(UsersWhoGotCodeArray[i+1]))){
+                   file = file +" "+ UsersWhoGotCodeArray[i+1];
                    i++;
-               }else{
-                   file = file + UsersWhoGotCodeArray[i] +"\r\n";
                }
+               file = file +"\r\n"
            }
        }
     }else{
-        if(UsersWhoGotCodeArray.length == 18 && file.indexOf(UsersWhoGotCodeArray)==-1){
-            file = file + UsersWhoGotCodeArray +"\r\n";
+        if(code.length == 18 && file.indexOf(code)==-1){
+            file = file + code + "\r\n";
         }
     }
-
     fs.writeFileSync("./gotcode.txt",file,{"encoding": "utf-8"});
     return true;
 }
@@ -221,7 +266,7 @@ function deleteUserFromTheFile(code){
 
     var lineArray = file.split('\r');
 
-    code = code.replace(" ","\n").replace(",","\n");
+    code = code.replace(" ","\n").replace(",","\n").replace(" , ","\n").replace(", ","\n").replace(" ,","\n");
     code = code.split('\n');
 
     var findAnyElem = false;
@@ -241,6 +286,7 @@ function deleteUserFromTheFile(code){
     lineArray = lineArray.join('\r\n');
 
     fs.writeFileSync("./gotcode.txt",lineArray,{"encoding": "utf-8"});
+    return true;
 }
 
 function countCodeInFile(){
@@ -258,4 +304,14 @@ function countCodeInFile(){
         count = "Ennyi kód van a botnál: "+count;
     }
     return count;
+}
+
+function switchOfTheBotOperation(message){
+    if(glyphTurnOn){
+        message.author.send(botIsNotWorkingText);
+        glyphTurnOn = false;
+    }else{
+        message.author.send(botIsWorkingText);
+        glyphTurnOn = true;
+    }
 }
