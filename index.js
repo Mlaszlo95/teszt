@@ -4,7 +4,10 @@ var bot = new Discord.Client();
 
 
 const TOKEN = process.env.BOT_TOKEN;
+
+
 var glyphTurnOn = true;
+var glyphImageRoot = "/image/nekroglyph.jpg";
 
 var admins = [];
 var roles = [];
@@ -15,6 +18,8 @@ var untext;
 var notMyAdmin;
 var newGlyphMes;
 var yourLevelIsToLowText;
+var textWhatIstheGlyph;
+var textRedeemCodeThesePlaces;
 
 //exception text arguments
 var exceptionOne;
@@ -31,10 +36,12 @@ const fileGotCode = "./gotcode.txt";
 
 //felhasználóknak üzzenet. Magyarul:
 
+    textWhatistheGlyph = "Ezt a kódot ha beváltod, akkor az avatarodnál tudsz használni egy ilyen képet mint ez:\n";
     text = "Tessék itt van a nekros glyph kódod:\n";                                //A bot küldi a glyph kódal ezt a üzenetet.
     untext = "Bocsi, de te már kaptál glyph kódot!\n";                              //A bot ezt az üzenetet küldi ha már van glyph kódja. The bot send this message in that case if user got an code.
     newGlyphMes = "Kérem adja be a glyph kódokat veszővel, szóközzel vagy enterel elválasztva!";
     yourLevelIsToLowText = "Sajnos nem vagy még tag, ezért még nem tudok neked Glyph Kódott adni. Ahhoz hogy tag legyél el kell érned a 3-mas szintet ezen a szerveren. Ezt megtudod valósítani ha hagysz üzeneteket, majd utána kapsz xp-t. Szabadon próbálkozhatsz ebben a szobában <#412712487893467136>\n \n";
+    textRedeemCodeThesePlaces = "\nBetudod váltani a kódot ezeken a helyeken. 1 - warframeben a marketnél és redeem code. Vagy 2 - ezen az oldalon: ";
 
     //kivételek
     exceptionOne = "```diff\n- A bot-nak nincs több kódja, de ne aggódj küldök egy üzenetet az adminoknak!``` \n<@224975936263684097> <@272762360140267520>";
@@ -43,9 +50,11 @@ const fileGotCode = "./gotcode.txt";
     //kivételek
 
 //Message for users. English:
+    textWhatIstheGlyph = textWhatIstheGlyph + "If you use this code, you'll get an avatar like this image:\n";
     text = text + "Here is your nekro's glyph code:\n";                             //The bot send this message with glyph code.
     untext = untext + "I sorry but you've already got a glyph code!\n";
     yourLevelIsToLowText = yourLevelIsToLowText + "Unfortunately you haven't earned the tag rank yet and I can't give you a Glyph code currently. If you want tag, you should level up to 3 in this server. You'll enable to do this if you leave some messages and you'll get xp for them. You can freely try in this room <#412712487893467136>";
+    textRedeemCodeThesePlaces = textRedeemCodeThesePlaces + "You can redeem the code in these places. 1 - login in warframe and go to market, redeem code. Or 2 - this website: https://www.warframe.com/promocode";
 
     //exceptions
     exceptionOne = exceptionOne + "```diff\n- The bot doesn't have more glyph codes. But don't worry I'm sending a message for admins!\n```";
@@ -99,7 +108,10 @@ function respondCommand(com, message){
                     var code = readGlyphCode();
                     userGotGlyph(message.author.id,code);
                     code = style1 + code + styleEnd;
-                    message.author.send(text + code);
+                    message.author.send(textWhatIstheGlyph,files: [
+                        glyphImageRoot
+                    ]);
+                    message.author.send(text + code + textRedeemCodeThesePlaces);
                 }catch(e){
                     message.channel.sendMessage(e);
                 }
