@@ -237,7 +237,7 @@ function addToFileThoseUsersWhoAlreadyGotCodes(code){
     var fs = require("fs");
     var file = fs.readFileSync("./gotcode.txt", {"encoding": "utf-8"});
 
-    code = code.replace(',',' ').replace(/\s\s+/g, ' ').replace(/[\n\r]/g,' ').repace(', ',' ').repace(' , ',' ').repace(' ,',' ').replace(' \n',' ');     //itt még van még néhány dolog amit lehet javitani, pld szóköz + enter ne érzékelje csak szóköznek
+    code = code.replace(',',' ').replace(/\s\s+/g, ' ').replace(/[\n\r]/g,' ').replace(', ',' ').replace(' , ',' ').replace(' ,',' ').replace(' \n',' ');     //itt még van még néhány dolog amit lehet javitani, pld szóköz + enter ne érzékelje csak szóköznek
     if(code.length>23){
         var UsersWhoGotCodeArray = code.split(' ');
         var long = UsersWhoGotCodeArray.length;
