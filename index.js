@@ -107,7 +107,7 @@ function respondCommand(com, message){
                 try{
                     var code = readGlyphCode();
                     userGotGlyph(message.author.id,code);
-                    code = style1 + code + styleEnd;
+                    code = style1 + "pc: " + code + styleEnd;
                     message.author.send(textWhatIstheGlyph,files: [
                         glyphImageRoot
                     ]);
