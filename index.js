@@ -3,7 +3,7 @@ const Discord = require("discord.js");
 var bot = new Discord.Client();
 
 
-const TOKEN = process.env.BOT_TOKEN;
+const TOKEN = 'AaI1vU5shaVOha3s9s8HwucnH9yZPhdl';
 
 
 var glyphTurnOn = true;
@@ -108,9 +108,9 @@ function respondCommand(com, message){
                     var code = readGlyphCode();
                     userGotGlyph(message.author.id,code);
                     code = style1 + "pc: " + code + styleEnd;
-                    message.author.send(textWhatIstheGlyph,files: [
+                    message.author.send(textWhatIstheGlyph,{files: [
                         glyphImageRoot
-                    ]);
+                    ]});
                     message.author.send(text + code + textRedeemCodeThesePlaces);
                 }catch(e){
                     message.channel.sendMessage(e);
