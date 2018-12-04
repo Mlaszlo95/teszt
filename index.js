@@ -93,7 +93,7 @@ bot.on("ready",function(){
     admins[0] = process.env.ADMINONE;
     admins[1] = process.env.ADMINTWO;
     admins[2] = process.env.ADMINTHREE;
-    roles[0] = process.env.ROLESTAG;
+    roles[0] = process.env.ROLETAG;
     roles[1] = process.env.ROLEADMIN;
 
     console.log("Ready!");
