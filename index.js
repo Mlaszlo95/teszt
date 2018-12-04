@@ -108,7 +108,7 @@ function respondCommand(com, message){
                 try{
                     var code = readGlyphCode();
                     userGotGlyph(message.author.id,code);
-                    code = style1 + " pc: " + code + styleEnd;
+                    code = style1 + "pc: " + code + styleEnd;
                     message.author.send(text + code + textRedeemCodeThesePlaces + textWhatIsTheGlyph,{
                     files: [
                             glyphImageRoot
@@ -154,8 +154,11 @@ function chectUserNotGotGlyph(author){
 
 function userGotGlyph(author,code){
     var fs = require("fs");
-    var file = fs.readFileSync("./glyph.txt", {"encoding": "utf-8"});
-    fs.writeFileSync("./gotcode.txt",author + " " + code,{"encoding": "utf-8"});
+    var file = fs.readFileSync("./gotcode.txt", {"encoding": "utf-8"});
+
+    file = file +"\r\n"+ author + " " + code;
+
+    fs.writeFileSync("./gotcode.txt",file,{"encoding": "utf-8"});
 }
 
 
