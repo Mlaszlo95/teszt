@@ -7,7 +7,7 @@ const TOKEN = process.env.TOKEN;
 
 
 var glyphTurnOn = true;
-var glyphImageRoot = "./image/nekroglyph.jpg";
+var glyphImageRoot = "./images/nekroglyph.jpg";
 
 var admins = [];
 var roles = [];
@@ -18,7 +18,7 @@ var untext;
 var notMyAdmin;
 var newGlyphMes;
 var yourLevelIsToLowText;
-var textWhatIstheGlyph;
+var textWhatIsTheGlyph;
 var textRedeemCodeThesePlaces;
 
 //exception text arguments
@@ -36,7 +36,7 @@ const fileGotCode = "./gotcode.txt";
 
 //felhasználóknak üzzenet. Magyarul:
 
-    textWhatistheGlyph = "\n\nEzt a kódot ha beváltod, akkor az avatarodnál tudsz használni egy ilyen képet mint ez:\n";
+    textWhatIsTheGlyph = "\n\nEzt a kódot ha beváltod, akkor az avatarodnál tudsz használni egy ilyen képet mint ez:\n";
     text = "Tessék itt van a nekros glyph kódod:\n";                                //A bot küldi a glyph kódal ezt a üzenetet.
     untext = "Bocsi, de te már kaptál glyph kódot!\n";                              //A bot ezt az üzenetet küldi ha már van glyph kódja. The bot send this message in that case if user got an code.
     newGlyphMes = "Kérem adja be a glyph kódokat veszővel, szóközzel vagy enterel elválasztva!";
@@ -50,11 +50,11 @@ const fileGotCode = "./gotcode.txt";
     //kivételek
 
 //Message for users. English:
-    textWhatIstheGlyph = textWhatIstheGlyph + "If you use this code, you'll get an avatar like this image:\n";
+    textWhatIsTheGlyph = textWhatIsTheGlyph + "If you use this code, you'll get an avatar like this image:\n";
     text = text + "Here is your nekro's glyph code:\n";                             //The bot send this message with glyph code.
     untext = untext + "I sorry but you've already got a glyph code!\n";
     yourLevelIsToLowText = yourLevelIsToLowText + "Unfortunately you haven't earned the tag rank yet and I can't give you a Glyph code currently. If you want tag, you should level up to 3 in this server. You'll enable to do this if you leave some messages and you'll get xp for them. You can freely try in this room <#412712487893467136>";
-    textRedeemCodeThesePlaces = textRedeemCodeThesePlaces + "You can redeem the code in these places. 1 - login in warframe and go to market, redeem code. Or 2 - this website: https://www.warframe.com/promocode";
+    textRedeemCodeThesePlaces = textRedeemCodeThesePlaces + "\nYou can redeem the code in these places. 1 - login in warframe and go to market, redeem code. Or 2 - this website: \n\nhttps://www.warframe.com/promocode";
 
     //exceptions
     exceptionOne = exceptionOne + "```diff\n- The bot doesn't have more glyph codes. But don't worry I'm sending a message for admins!\n```";
@@ -84,6 +84,7 @@ var botIsWorkingText = "A bot jelenleg működőképes és osztja a kódot több
 
 bot.on("message", function(message) {
     if(message.author.equals(bot.user)) return;
+    if(message.channel.type === "dm" && message.content.toLowerCase() === prefix + command) return;
     if(message.channel.type === "dm" && checkTheAdminStatus(message)) pmMessageCode(message);
     respondCommand(prefix + command, message);
 });
@@ -92,7 +93,7 @@ bot.on("ready",function(){
     admins[0] = process.env.ADMINONE;
     admins[1] = process.env.ADMINTWO;
     admins[2] = process.env.ADMINTHREE;
-    roles[0] = process.env.ROLESTAFF;
+    roles[0] = process.env.ROLESTAG;
     roles[1] = process.env.ROLEADMIN;
 
     console.log("Ready!");
@@ -103,11 +104,11 @@ bot.login(TOKEN);
 function respondCommand(com, message){   
     if (message.content.toLowerCase() === com)
         if(chectUserNotGotGlyph(message.author.id)){
-            if(message.member.roles.has(roles[0]) || (message.member.roles.has(roles[1]) && glyphTurnOn)){
+            if(message.member.roles.has(roles[1]) || (message.member.roles.has(roles[0]) && glyphTurnOn)){
                 try{
                     var code = readGlyphCode();
                     userGotGlyph(message.author.id,code);
-                    code = style1 + " pc:  " + code + styleEnd;
+                    code = style1 + "pc: " + code + styleEnd;
                     message.author.send(text + code + textRedeemCodeThesePlaces + textWhatIsTheGlyph,{
                     files: [
                             glyphImageRoot
@@ -116,7 +117,7 @@ function respondCommand(com, message){
                 }catch(e){
                     message.channel.sendMessage(e);
                 }
-            }else{
+            }else if(glyphTurnOn){
                 message.author.send(yourLevelIsToLowText);
             }
         }else{
