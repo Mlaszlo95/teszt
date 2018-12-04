@@ -3,11 +3,11 @@ const Discord = require("discord.js");
 var bot = new Discord.Client();
 
 
-const TOKEN = 'AaI1vU5shaVOha3s9s8HwucnH9yZPhdl';
+const TOKEN = process.env.TOKEN;
 
 
 var glyphTurnOn = true;
-var glyphImageRoot = "/image/nekroglyph.jpg";
+var glyphImageRoot = "./image/nekroglyph.jpg";
 
 var admins = [];
 var roles = [];
@@ -108,9 +108,11 @@ function respondCommand(com, message){
                     var code = readGlyphCode();
                     userGotGlyph(message.author.id,code);
                     code = style1 + "pc: " + code + styleEnd;
-                    message.author.send(textWhatIstheGlyph,{files: [
-                        glyphImageRoot
-                    ]});
+                    message.author.send(textWhatIstheGlyph,{ 
+                        files: [
+                            glyphImageRoot
+                        ]
+                    });
                     message.author.send(text + code + textRedeemCodeThesePlaces);
                 }catch(e){
                     message.channel.sendMessage(e);
@@ -176,7 +178,7 @@ function pmMessageCode(message){
             files: [
                 "./gotcode.txt"
             ]
-        })
+        });
     }
 
     if(message.content.toLowerCase().indexOf(prefix + "add") == 0){
