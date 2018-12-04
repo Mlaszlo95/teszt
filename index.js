@@ -36,7 +36,7 @@ const fileGotCode = "./gotcode.txt";
 
 //felhasználóknak üzzenet. Magyarul:
 
-    textWhatistheGlyph = "Ezt a kódot ha beváltod, akkor az avatarodnál tudsz használni egy ilyen képet mint ez:\n";
+    textWhatistheGlyph = "\n\nEzt a kódot ha beváltod, akkor az avatarodnál tudsz használni egy ilyen képet mint ez:\n";
     text = "Tessék itt van a nekros glyph kódod:\n";                                //A bot küldi a glyph kódal ezt a üzenetet.
     untext = "Bocsi, de te már kaptál glyph kódot!\n";                              //A bot ezt az üzenetet küldi ha már van glyph kódja. The bot send this message in that case if user got an code.
     newGlyphMes = "Kérem adja be a glyph kódokat veszővel, szóközzel vagy enterel elválasztva!";
@@ -107,13 +107,12 @@ function respondCommand(com, message){
                 try{
                     var code = readGlyphCode();
                     userGotGlyph(message.author.id,code);
-                    code = style1 + "pc: " + code + styleEnd;
-                    message.author.send(textWhatIstheGlyph,{ 
-                        files: [
+                    code = style1 + " pc:  " + code + styleEnd;
+                    message.author.send(text + code + textRedeemCodeThesePlaces + textWhatIsTheGlyph,{
+                    files: [
                             glyphImageRoot
                         ]
                     });
-                    message.author.send(text + code + textRedeemCodeThesePlaces);
                 }catch(e){
                     message.channel.sendMessage(e);
                 }
