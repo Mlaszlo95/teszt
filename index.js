@@ -109,11 +109,11 @@ bot.login(TOKEN);
 function firstFileChecker(){
 
     if(!fs.existsSync(fileGotCodeLoc)){
-        fs.createWriteStream(fileGotCodeLoc,'\r\n');
+        fs.createWriteStream(fileGotCodeLoc,"");
     }
 
     if(!fs.existsSync(fileGlyphLoc)){
-        fs.createWriteStream(fileGlyphLoc,'\r\n');
+        fs.createWriteStream(fileGlyphLoc,"");
     }
 }
 
