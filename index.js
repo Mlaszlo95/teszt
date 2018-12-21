@@ -1,4 +1,5 @@
 const Discord = require("discord.js");
+var fs =require("fs");
 
 var bot = new Discord.Client();
 
@@ -32,7 +33,8 @@ const prefix = "!";
 const command = "glyph";
 
 //file name and root
-const fileGotCode = "./gotcode.txt";
+const fileGotCodeLoc = "./gotcode.txt";
+const fileGlyphLoc = "./glyph.txt";
 
 //felhasználóknak üzzenet. Magyarul:
 
@@ -96,13 +98,26 @@ bot.on("ready",function(){
     roles[0] = process.env.ROLETAG;
     roles[1] = process.env.ROLEADMIN;
 
+    firstFileChecker();
+
     console.log("Ready!");
 });    
 
 bot.login(TOKEN);
 
+function firstFileChecker(){
+
+    if(!fs.existsSync(fileGotCodeLoc)){
+        fs.createWriteStream(fileGotCodeLoc);
+    }
+
+    if(!fs.existsSync(fileGlyphLoc)){
+        fs.createWriteStream(fileGlyphLoc);
+    }
+}
+
 function respondCommand(com, message){   
-    if (message.content.toLowerCase() === com)
+    if (message.content.toLowerCase() === com){
         if(chectUserNotGotGlyph(message.author.id)){
             if(message.member.roles.has(roles[1]) || (message.member.roles.has(roles[0]) && glyphTurnOn)){
                 try{
@@ -123,11 +138,11 @@ function respondCommand(com, message){
         }else{
             message.author.send(untext);
         }
+    }
 }
 
 function readGlyphCode(){
-    var fs = require("fs");
-    var file = fs.readFileSync("./glyph.txt", {"encoding": "utf-8"});
+    var file = fs.readFileSync(fileGlyphLoc, {"encoding": "utf-8"});
     
     if(file.length<18){
         throw exceptionOne;
@@ -136,14 +151,13 @@ function readGlyphCode(){
     code = file.slice(0, 20).replace('\r','');
     file = file.replace(code,'').split("\n").slice(1).join("\n");
     
-    fs.writeFileSync("./glyph.txt",file,{"encoding": "utf-8"});
+    fs.writeFileSync(fileGlyphLoc,file,{"encoding": "utf-8"});
     
     return code;
 }
 
 function chectUserNotGotGlyph(author){
-    var fs = require("fs");
-    var file = fs.readFileSync("./gotcode.txt", {"encoding": "utf-8"});
+    var file = fs.readFileSync(fileGotCodeLoc, {"encoding": "utf-8"});
     
     if(file.indexOf(author) == -1){
         return true;
@@ -153,12 +167,12 @@ function chectUserNotGotGlyph(author){
 }
 
 function userGotGlyph(author,code){
-    var fs = require("fs");
-    var file = fs.readFileSync("./gotcode.txt", {"encoding": "utf-8"});
+    var file = fs.readFileSync(fileGotCodeLoc, {"encoding": "utf-8"});
 
-    file = file +"\r\n"+ author + " " + code;
+    file = file + author + " " + code + "\r\n";
 
-    fs.writeFileSync("./gotcode.txt",file,{"encoding": "utf-8"});
+
+    fs.writeFileSync(fileGotCodeLoc,file,{"encoding": "utf-8"});
 }
 
 
@@ -179,7 +193,7 @@ function pmMessageCode(message){
     if(message.content.toLowerCase() === prefix + "drop"){
         message.channel.send("Itt vannak azok, akik már kaptak kódot", {
             files: [
-                "./gotcode.txt"
+                fileGotCodeLoc
             ]
         });
     }
@@ -224,15 +238,14 @@ function checkTheAdminStatus(message){
 }
 
 function botGotMoreCodes(codeArray){
-    var fs = require("fs");
-    var file = fs.readFileSync("./glyph.txt", {"encoding": "utf-8"});
+    var file = fs.readFileSync(fileGlyphLoc, {"encoding": "utf-8"});
 
     for(var i = 0; i < codeArray.length; i++){
         if(checkTheFormatumOfGlyphCode(codeArray[i])){
             file = file + codeArray[i] + "\r\n";
         }
     }
-    fs.writeFileSync("./glyph.txt",file,{"encoding": "utf-8"});
+    fs.writeFileSync(fileGlyphLoc,file,{"encoding": "utf-8"});
     return true;
 }
 
@@ -251,8 +264,7 @@ function checkTheFormatumOfGlyphCode(code){
 }
 
 function addToFileThoseUsersWhoAlreadyGotCodes(code){
-    var fs = require("fs");
-    var file = fs.readFileSync("./gotcode.txt", {"encoding": "utf-8"});
+    var file = fs.readFileSync(fileGotCodeLoc, {"encoding": "utf-8"});
 
     code = code.replace(',',' ').replace(/\s\s+/g, ' ').replace(/[\n\r]/g,' ').replace(', ',' ').replace(' , ',' ').replace(' ,',' ').replace(' \n',' ');     //itt még van még néhány dolog amit lehet javitani, pld szóköz + enter ne érzékelje csak szóköznek
     if(code.length>23){
@@ -265,7 +277,7 @@ function addToFileThoseUsersWhoAlreadyGotCodes(code){
                    file = file +" "+ UsersWhoGotCodeArray[i+1];
                    i++;
                }
-               file = file +"\r\n"
+               file = file +"\r\n";
            }
        }
     }else{
@@ -273,13 +285,12 @@ function addToFileThoseUsersWhoAlreadyGotCodes(code){
             file = file + code + "\r\n";
         }
     }
-    fs.writeFileSync("./gotcode.txt",file,{"encoding": "utf-8"});
+    fs.writeFileSync(fileGotCodeLoc,file,{"encoding": "utf-8"});
     return true;
 }
 
 function deleteUserFromTheFile(code){
-    var fs = require("fs");
-    var file = fs.readFileSync("./gotcode.txt", {"encoding": "utf-8"});
+    var file = fs.readFileSync(fileGotCodeLoc, {"encoding": "utf-8"});
 
     var lineArray = file.split('\r');
 
@@ -302,13 +313,12 @@ function deleteUserFromTheFile(code){
     }
     lineArray = lineArray.join('\r\n');
 
-    fs.writeFileSync("./gotcode.txt",lineArray,{"encoding": "utf-8"});
+    fs.writeFileSync(fileGotCodeLoc,lineArray,{"encoding": "utf-8"});
     return true;
 }
 
 function countCodeInFile(){
-    var fs = require("fs");
-    var file = fs.readFileSync("./glyph.txt", {"encoding": "utf-8"});
+    var file = fs.readFileSync(fileGlyphLoc, {"encoding": "utf-8"});
 
     var codeArray = file.split("\n");
     var count = codeArray.length;
