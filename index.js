@@ -186,7 +186,7 @@ function pmMessageCode(message){
     if(message.content.toLowerCase().indexOf(prefix + "code") == 0){
         var code = message.content.replace(prefix + "code ", "");
         code = code.replace(" ","\n").replace(/ +(?= )/g,'').replace(",","\n").replace(' , ','\n').replace(' ,','\n').replace(', ','\n');
-        var codeArray = code.split("\n",19);
+        var codeArray = code.split("\n");
         if(botGotMoreCodes(codeArray)) message.author.send("Siker");
     }
 
@@ -238,14 +238,14 @@ function checkTheAdminStatus(message){
 }
 
 function botGotMoreCodes(codeArray){
-    var file = fs.readFileSync(fileGlyphLoc, {"encoding": "utf-8"});
+    var append = null;
 
     for(var i = 0; i < codeArray.length; i++){
-        if(checkTheFormatumOfGlyphCode(codeArray[i])){
-            file = file + codeArray[i] + "\r\n";
+        if(checkTheFormatumOfGlyphCode(codeArray[i]) && codeArray[i].length == 19){
+            append  = append + codeArray[i] + "\r\n";
         }
     }
-    fs.writeFileSync(fileGlyphLoc,file,{"encoding": "utf-8"});
+    fs.appendFileSync(fileGlyphLoc,append);
     return true;
 }
 
