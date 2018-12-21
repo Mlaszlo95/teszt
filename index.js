@@ -109,11 +109,11 @@ bot.login(TOKEN);
 function firstFileChecker(){
 
     if(!fs.existsSync(fileGotCodeLoc)){
-        fs.createWriteStream(fileGotCodeLoc,"");
+        fs.createWriteStream(fileGotCodeLoc,'\r\n');
     }
 
     if(!fs.existsSync(fileGlyphLoc)){
-        fs.createWriteStream(fileGlyphLoc,"");
+        fs.createWriteStream(fileGlyphLoc,'\r\n');
     }
 }
 
@@ -248,7 +248,7 @@ function botGotMoreCodes(message){
     code = code.replace(" ","\n").replace(/ +(?= )/g,'').replace(",","\n").replace(' , ','\n').replace(' ,','\n').replace(', ','\n');
     var codeArray = code.split("\n");
 
-    var append;
+    var append = null;
 
     for(var i = 0; i < codeArray.length; i++){
         if(checkTheFormatumOfGlyphCode(codeArray[i]) && codeArray[i].length == 19){
@@ -256,7 +256,7 @@ function botGotMoreCodes(message){
         }
     }
     fs.appendFileSync(fileGlyphLoc,append,function(){
-        message.send.author("Sikeres!");
+        message.author.send("Sikeres!");
     });
 }
 
