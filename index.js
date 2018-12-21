@@ -70,7 +70,8 @@ var helpDrop = "!drop --- ezzel lehet lekérni kik kaptak már kódot, egy fájl
 var helpAddGotCode = "!add --- ezzel a paranccsal lehet hozzá adni azokat akik kaptak kódot. A formátum: id xxxx-xxxx-xxxx-xxxx .A kód nem szükséges"; 
 var helpDeleteGotCode = "!delete --- ezzel a paranccsal lehet kitörölni felhasználókat a kapott fájlból.";
 var helpCountCode = "!count --- ezzel tudod megszámolni a kódokat, amik a botnál vannak. Ha 0 küld egy figyelmeztetést.";
-var helpSwitch = "!switch --- ezzel a paranccsal ki/be lehet kapcsolni a botot, ha ki van kapcsolva akkor csak az adminok kaphatnak kódot, ha be van akkor bárki kaphat aki tag"
+var helpSwitch = "!switch --- ezzel a paranccsal ki/be lehet kapcsolni a botot, ha ki van kapcsolva akkor csak az adminok kaphatnak kódot, ha be van akkor bárki kaphat aki tag";
+var helpDropCode="!drop code --- ezzel tudod lekérni a kódok fált";
 
 var botIsNotWorkingText = "A bot jelenleg, csak az adminoknak oszthat a kódot";
 var botIsWorkingText = "A bot jelenleg működőképes és osztja a kódot többieknek is";
@@ -108,11 +109,11 @@ bot.login(TOKEN);
 function firstFileChecker(){
 
     if(!fs.existsSync(fileGotCodeLoc)){
-        fs.createWriteStream(fileGotCodeLoc);
+        fs.createWriteStream(fileGotCodeLoc,'\r\n');
     }
 
     if(!fs.existsSync(fileGlyphLoc)){
-        fs.createWriteStream(fileGlyphLoc);
+        fs.createWriteStream(fileGlyphLoc,'\r\n');
     }
 }
 
@@ -148,7 +149,7 @@ function readGlyphCode(){
         throw exceptionOne;
     }
 
-    code = file.slice(0, 20).replace('\r','');
+    code = file.slice(0, 19).replace('\r','').replace('\n','\n');
     file = file.replace(code,'').split("\n").slice(1).join("\n");
     
     fs.writeFileSync(fileGlyphLoc,file,{"encoding": "utf-8"});
@@ -179,21 +180,25 @@ function userGotGlyph(author,code){
 function pmMessageCode(message){
     
     if(message.content.toLowerCase() === prefix + "help"){
-        message.author.send(helpCode+"\n"+helpDrop+"\n"+helpAddGotCode+"\n"+helpDeleteGotCode+"\n"+helpCountCode+"\n"+helpSwitch);
+        message.author.send(helpCode+"\n"+helpDrop+"\n"+helpAddGotCode+"\n"+helpDeleteGotCode+"\n"+helpCountCode+"\n"+helpSwitch+"\n"+helpDropCode);
         return ;
     }
 
     if(message.content.toLowerCase().indexOf(prefix + "code") == 0){
-        var code = message.content.replace(prefix + "code ", "");
-        code = code.replace(" ","\n").replace(/ +(?= )/g,'').replace(",","\n").replace(' , ','\n').replace(' ,','\n').replace(', ','\n');
-        var codeArray = code.split("\n");
-        if(botGotMoreCodes(codeArray)) message.author.send("Siker");
+        botGotMoreCodes(message);
     }
 
     if(message.content.toLowerCase() === prefix + "drop"){
         message.channel.send("Itt vannak azok, akik már kaptak kódot", {
             files: [
                 fileGotCodeLoc
+            ]
+        });
+    }
+    if(message.content.toLowerCase() === prefix + "drop code"){
+        message.channel.send("Itt vannak a kódok:", {
+            files: [
+                fileGlyphLoc
             ]
         });
     }
@@ -237,16 +242,22 @@ function checkTheAdminStatus(message){
     return false;
 }
 
-function botGotMoreCodes(codeArray){
-    var append = null;
+function botGotMoreCodes(message){
+
+    var code = message.content.replace(prefix + "code ", "");
+    code = code.replace(" ","\n").replace(/ +(?= )/g,'').replace(",","\n").replace(' , ','\n').replace(' ,','\n').replace(', ','\n');
+    var codeArray = code.split("\n");
+
+    var append;
 
     for(var i = 0; i < codeArray.length; i++){
         if(checkTheFormatumOfGlyphCode(codeArray[i]) && codeArray[i].length == 19){
-            append  = append + codeArray[i] + "\r\n";
+            append = append + codeArray[i] + "\r\n";
         }
     }
-    fs.appendFileSync(fileGlyphLoc,append);
-    return true;
+    fs.appendFileSync(fileGlyphLoc,append,function(){
+        message.send.author("Sikeres!");
+    });
 }
 
 function checkTheFormatumOfGlyphCode(code){
