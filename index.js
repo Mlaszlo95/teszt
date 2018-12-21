@@ -248,7 +248,7 @@ function botGotMoreCodes(message){
     code = code.replace(" ","\n").replace(/ +(?= )/g,'').replace(",","\n").replace(' , ','\n').replace(' ,','\n').replace(', ','\n');
     var codeArray = code.split("\n");
 
-    var append = null;
+    var append = "";
 
     for(var i = 0; i < codeArray.length; i++){
         if(checkTheFormatumOfGlyphCode(codeArray[i]) && codeArray[i].length == 19){
