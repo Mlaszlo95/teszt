@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-var fs = require("fs");
+var fs =require("fs");
 
 var bot = new Discord.Client();
 
@@ -109,11 +109,11 @@ bot.login(TOKEN);
 function firstFileChecker(){
 
     if(!fs.existsSync(fileGotCodeLoc)){
-        fs.createWriteStream(fileGotCodeLoc,'\r\n');
+        fs.createWriteStream(fileGotCodeLoc,"");
     }
 
     if(!fs.existsSync(fileGlyphLoc)){
-        fs.createWriteStream(fileGlyphLoc,'\r\n');
+        fs.createWriteStream(fileGlyphLoc,"");
     }
 }
 
