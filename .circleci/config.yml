@@ -1,104 +1,21 @@
+# This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
+version: 2.1
 
-Tampermonkey® by Jan Biniok
-v4.13.6138
-	
-Hiba bejelentő javítás
-by Megyeri László
-1
-// ==UserScript==
-2
-// @name         Hiba bejelentő javítás
-3
-// @namespace    http://tampermonkey.net/
-4
-// @version      1.0
-5
-// @description  Eltünik az üzzenet a invitech oldalán, ez a script automatikusa vissza rakja mezőbe az eltünt szöveget
-6
-// @author       Megyeri László
-7
-// @match        http://my-servicedesk.invitech.hu/
-8
-// @icon         https://www.google.com/s2/favicons?domain=tampermonkey.net
-9
-// @grant        none
-10
-// @require      http://code.jquery.com/jquery-3.6.0.min.js
-11
-// ==/UserScript==
-12
-/* globals jQuery, $, waitForKeyElements */
-13
-​
-14
-(function() {
-15
-    var inputText = '';
-16
-    var textLong = -1;
-17
-    var field = '#dijitEditorBody';
-18
-​
-19
-    $(field).on('keydown',function(evt){
-20
-        var long = $(field).val().length;
-21
-​
-22
-        var key = event.keyCode;
-23
-​
-24
-        evt = (evt) ? evt : window.event;
-25
-        var charCode = evt.keyCode;
-26
-​
-27
-        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode !=45 && ( charCode < 19 || charCode > 46 )) {
-28
-           inputText = inputText + event.key;
-29
-           textLong++;
-30
-        }else if(charCode == 8){
-31
-            inputText = inputText.slice(0, -1);
-32
-            textLong--;
-33
-        }else if(charCode == 13){
-34
-            inputText = inputText + "\n";
-35
-        }else{
-36
-           return;
-37
-        }
-38
-​
-39
-        if(long < textLong && textLong != 0){
-40
-           $(field).val(inputText);
-41
-        }
-42
-​
-43
-        console.log(textLong);
-44
-        console.log(long);
-45
-​
-46
-        console.log(inputText);
-47
-    });
-48
-​
-49
-})();
+# Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
+# See: https://circleci.com/docs/2.0/orb-intro/
+orbs:
+  node: circleci/node@4.7
+
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
+    # Inside the workflow, you define the jobs you want to run.
+    jobs:
+      - node/test:
+          # This is the node version to use for the `cimg/node` tag
+          # Relevant tags can be found on the CircleCI Developer Hub
+          # https://circleci.com/developer/images/image/cimg/node
+          version: '16.10'
+          # If you are using yarn, change the line below from "npm" to "yarn"
+          pkg-manager: npm
